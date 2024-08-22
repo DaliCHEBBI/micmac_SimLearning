@@ -147,6 +147,10 @@ class cOneLevel
        std::string      mNameIm;   ///< Full Name of the image at this level
        std::string      mNameMasq; ///< Full Name of the masq
        std::string      mNamePx;   ///< For image 1, full name of paralax result
+
+       // added images PxMin and PxMax to account for matches search bounds
+       cIm2D<tREAL8> & mImPxMin;
+       cIm2D<tREAL8> & mImPxMax;
 };
 
 
@@ -322,7 +326,9 @@ cOneLevel::cOneLevel(cOneIm &anIm,int aLevel) :
     mDownLev  (nullptr),
     mNameIm   (StdFullName(mIm.mNameIm)),
     mNameMasq (StdFullName(mIm.mNameMasq)),
-    mNamePx   (AddBefore(ChgPostix("","tif"),"Px1_Num"+ToStr(mIm.mAppli.mNbLevel-aLevel+1)+"_DeZoom"+ToStr(std::pow(2,aLevel))+"_LeChantier"))
+    mNamePx   (AddBefore(ChgPostix("","tif"),"Px1_Num"+ToStr(mIm.mAppli.mNbLevel-aLevel+1)+"_DeZoom"+ToStr(std::pow(2,aLevel))+"_LeChantier")),
+    mImPxMax(cPt2di(1,1)),
+    mImPxMin(cPt2di(1,1))
 {
    if (aLevel==0)
       mAppli.SetOutPut(mNamePx);
@@ -633,6 +639,19 @@ void cOneLevel::EstimateIntervPx
    aParam.mPxMin = aParam.mBoxIn2.P0().x() + aParam.mOffsetPx;
    aParam.mPxMax = aParam.mBoxIn2.P1().x() + aParam.mOffsetPx;
    */
+}
+
+
+void cOneLevel::CalculNappeEnglobante
+     (
+          cParam1Match & aParam,
+          const cBox2di & aBoxFile1,
+          const cBox2di & aBoxFile2
+     ) const
+{
+  // Calcule les bornes sup et inf des nappes englobantes pour definir l espace de recherche
+
+
 }
 
 
