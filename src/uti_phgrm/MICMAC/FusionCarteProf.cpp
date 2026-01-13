@@ -985,7 +985,7 @@ template <class Type> void cFusionCarteProf<Type>::DoOneFusion(const std::string
 // std::cout << "AAAAAAAAAAAA " << mNameNuageIn << "\n";
        // MakeFileXML(mNuage,mNameNuageIn);
 
-       bool IsModified;
+       /*bool IsModified;
        Im2D<tNum,tNBase> aITest(1,1);
        Tiff_Im::CreateIfNeeded
        (
@@ -1026,7 +1026,7 @@ template <class Type> void cFusionCarteProf<Type>::DoOneFusion(const std::string
                GenIm::bits1_msbf,
                Tiff_Im::No_Compr,
                Tiff_Im::BlackIsZero
-       );
+       );*/
        MakeFileXML(mNuage,aNameNuage);
     }
 
@@ -1371,36 +1371,103 @@ if (aPk.P()>MaxP)
    aImMasq = aImMasq0;
 
 
+   // add patch to create tiles to reduce huge image size
 
+   bool IsModified;
+   Im2D<tNum,tNBase> aITest(1,1);
+
+   std::string CurBoxStr=ToString(aBoxOut._p0.x)+"_"+ToString(aBoxOut._p0.y)+"_"+ToString(aBoxOut._p1.x)+"_"+ToString(aBoxOut._p1.y);
+   std::string mLocDir = DirOfFile(mNameTif);
+
+   std::string mNameTif_dalle =mLocDir+"/Dalle_"+CurBoxStr+"_"+NameWithoutDir(mNameTif);
+   std::string mNameCptr_dalle =mLocDir+"/Dalle_"+CurBoxStr+"_"+NameWithoutDir(mNameCptr);
+   std::string mNameCorrel_dalle =mLocDir+"/Dalle_"+CurBoxStr+"_"+NameWithoutDir(mNameCorrel);
+   std::string mNameMasq_dalle =mLocDir+"/Dalle_"+CurBoxStr+"_"+NameWithoutDir(mNameMasq);
+
+   ElAffin2D mAfM2CurOut =  ElAffin2D::trans(-Pt2dr(aBoxOut._p0)) * mAfM2CGlob;
+
+   Tiff_Im::CreateIfNeeded
+       (
+           IsModified,
+           mNameTif_dalle,
+           aBoxOut.sz(),
+           aITest.TypeEl(),
+           Tiff_Im::No_Compr,
+           Tiff_Im::BlackIsZero
+           );
+
+   Tiff_Im::CreateIfNeeded
+       (
+           IsModified,
+           mNameCptr_dalle,
+           aBoxOut.sz(),
+           GenIm::u_int1,
+           Tiff_Im::No_Compr,
+           Tiff_Im::BlackIsZero
+           );
+
+
+   Tiff_Im::CreateIfNeeded
+       (
+           IsModified,
+           mNameCorrel_dalle,
+           aBoxOut.sz(),
+           GenIm::u_int1,
+           Tiff_Im::No_Compr,
+           Tiff_Im::BlackIsZero
+           );
+
+   Tiff_Im::CreateIfNeeded
+       (
+           IsModified,
+           mNameMasq_dalle,
+           aBoxOut.sz(),
+           GenIm::bits1_msbf,
+           Tiff_Im::No_Compr,
+           Tiff_Im::BlackIsZero
+           );
+
+
+
+
+   //Tiff_Im::CreateFromIm(aImFus, mNameTif_dalle);
+   GenTFW(mAfM2CurOut.inv(),StdPrefix(mNameTif_dalle) + ".tfw");
+   //std::cout<<aBoxIn._p0<<"  "<<aBoxOut.sz()<<"  "<<std::endl;
    ELISE_COPY
    (
-       rectangle(aBoxOut._p0,aBoxOut._p1),
-       trans(aImFus.in(),-aBoxIn._p0),
-       Tiff_Im(mNameTif.c_str()).out()
+       rectangle(Pt2di(0,0),aBoxOut.sz()),
+       trans(aImFus.in(),aBoxOut._p0-aBoxIn._p0),
+       Tiff_Im(mNameTif_dalle.c_str()).out()
    );
 
+
+    //Tiff_Im::CreateFromIm(aImCorrel, mNameCorrel_dalle);
+    GenTFW(mAfM2CurOut.inv(),StdPrefix(mNameCorrel_dalle) + ".tfw");
+
    ELISE_COPY
    (
-       rectangle(aBoxOut._p0,aBoxOut._p1),
-       trans(aImCorrel.in(),-aBoxIn._p0),
-       Tiff_Im(mNameCorrel.c_str()).out()
+       rectangle(Pt2di(0,0),aBoxOut.sz()),
+       trans(aImCorrel.in(),aBoxOut._p0-aBoxIn._p0),
+       Tiff_Im(mNameCorrel_dalle.c_str()).out()
    );
 
+   //Tiff_Im::CreateFromIm(aImCptr, mNameCptr_dalle);
+   GenTFW(mAfM2CurOut.inv(),StdPrefix(mNameCptr_dalle) + ".tfw");
    ELISE_COPY
    (
-       rectangle(aBoxOut._p0,aBoxOut._p1),
-       trans(aImCptr.in(),-aBoxIn._p0),
-       Tiff_Im(mNameCptr.c_str()).out()
+       rectangle(Pt2di(0,0),aBoxOut.sz()),
+       trans(aImCptr.in(),aBoxOut._p0-aBoxIn._p0),
+       Tiff_Im(mNameCptr_dalle.c_str()).out()
    );
 
-
-
+    //Tiff_Im::CreateFromIm(aImMasq, mNameMasq_dalle);
+    GenTFW(mAfM2CurOut.inv(),StdPrefix(mNameMasq_dalle) + ".tfw");
 
    ELISE_COPY
    (
-       rectangle(aBoxOut._p0,aBoxOut._p1),
-       trans(aImMasq.in(),-aBoxIn._p0),
-       Tiff_Im(mNameMasq.c_str()).out()
+       rectangle(Pt2di(0,0),aBoxOut._p1-aBoxOut._p0),
+       trans(aImMasq.in(),aBoxOut._p0-aBoxIn._p0),
+       Tiff_Im(mNameMasq_dalle.c_str()).out()
    );
 
    // std::cout << "ENnnndd \n"; getchar();
