@@ -1031,6 +1031,7 @@ template <class Type> void cFusionCarteProf<Type>::DoOneFusion(const std::string
     }
 
 
+
     if (!mParam.BoxTest().IsInit())
     {
           cDecoupageInterv2D aDecoup = cDecoupageInterv2D::SimpleDec
@@ -1053,19 +1054,20 @@ template <class Type> void cFusionCarteProf<Type>::DoOneFusion(const std::string
 
                   if (mParam.ShowCom().Val()) 
                   {
-                      std::cout << aNewCom << "\n";
+                      std::cout << aNewCom <<" "<<aDecoup.KthIntervIn(aKI) <<" "<<aDecoup.KthIntervOut(aKI)<< "\n";
                   }
              }
              else
              {
+
                  if ((!mCalledBySubP) || (mParam.InterneSingleBox().Val()==aKI))
                  {
-                    DoOneBloc
+                    /*DoOneBloc
                     (
                         aDecoup.NbInterv()-aKI,
                         aDecoup.KthIntervIn(aKI),
                         aDecoup.KthIntervOut(aKI)
-                    );
+                    );*/
                  }
              }
          }
