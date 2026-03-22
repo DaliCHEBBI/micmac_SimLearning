@@ -1062,12 +1062,12 @@ template <class Type> void cFusionCarteProf<Type>::DoOneFusion(const std::string
 
                  if ((!mCalledBySubP) || (mParam.InterneSingleBox().Val()==aKI))
                  {
-                    /*DoOneBloc
+                    DoOneBloc
                     (
                         aDecoup.NbInterv()-aKI,
                         aDecoup.KthIntervIn(aKI),
                         aDecoup.KthIntervOut(aKI)
-                    );*/
+                    );
                  }
              }
          }
